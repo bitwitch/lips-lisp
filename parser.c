@@ -1,9 +1,35 @@
 #include <stdio.h> 
 #include <stdlib.h>
 #include <editline/readline.h>
-#include "mpc.h" 
+#include "mpc.h"
+
+typedef struct {
+  int type;
+  long num;
+  int err;
+} lval;
+
+enum { LVAL_NUM, LVAL_ERR };
+enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM };
 
 static char pct = '%'; 
+
+lval lval_num (long x) 
+{
+  lval v;
+  v.type = LVAL_NUM;
+  v.num = x;
+  return v;
+}
+
+lval lval_err (int x) 
+{
+  lval v;
+  v.type = LVAL_ERR;
+  v.err = x;
+  return v;
+}
+
 
 int number_of_nodes(mpc_ast_t* t) 
 {
@@ -20,7 +46,7 @@ int number_of_nodes(mpc_ast_t* t)
 }
 
 long op_eval(char* op, long rand1, long rand2) 
-{
+{   
     if (strcmp(op, "+")  == 0) { return rand1 + rand2; }
     if (strcmp(op, "-")  == 0) { return rand1 - rand2; }
     if (strcmp(op, "*")  == 0) { return rand1 * rand2; }
@@ -67,7 +93,7 @@ int main(int argc, char** argv)
         ",
         Number, Operator, Expr, Lip);
     
-    puts("Lips - Version 0.0.0.0.1\n"); 
+    puts("Lips - Version 0.0.0.0.1"); 
     puts("Press ctrl+c to exit\n"); 
    
     while(1) 
