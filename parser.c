@@ -3,6 +3,8 @@
 #include <editline/readline.h>
 #include "mpc.h" 
 
+static char pct = '%'; 
+
 int number_of_nodes(mpc_ast_t* t) 
 {
     if (t->children_num == 0) return 1; 
@@ -19,10 +21,13 @@ int number_of_nodes(mpc_ast_t* t)
 
 long op_eval(char* op, long rand1, long rand2) 
 {
-    if (strcmp(op, "+") == 0) { return rand1 + rand2; }
-    if (strcmp(op, "-") == 0) { return rand1 - rand2; }
-    if (strcmp(op, "*") == 0) { return rand1 * rand2; }
-    if (strcmp(op, "/") == 0) { return rand1 / rand2; }
+    if (strcmp(op, "+")  == 0) { return rand1 + rand2; }
+    if (strcmp(op, "-")  == 0) { return rand1 - rand2; }
+    if (strcmp(op, "*")  == 0) { return rand1 * rand2; }
+    if (strcmp(op, "/")  == 0) { return rand1 / rand2; }
+    if (strcmp(op, &pct) == 0) { return rand1 % rand2; }    
+    if (strcmp(op, "^")  == 0) { return (long)pow(rand1, rand2); }
+
     return 0; 
 }
 
@@ -46,7 +51,7 @@ long eval(mpc_ast_t* t)
 }
 
 int main(int argc, char** argv) 
-{
+{   
     // Polish Notation
     mpc_parser_t* Number   = mpc_new("number");
     mpc_parser_t* Operator = mpc_new("operator");
@@ -56,7 +61,7 @@ int main(int argc, char** argv)
     mpca_lang(MPCA_LANG_DEFAULT,
         "                                                        \
             number    : /-?[0-9]+/ ;                             \
-            operator  : '+' | '-' | '*' | '/' ;                  \
+            operator  : '+' | '-' | '*' | '/' | '%' | '^';       \
             expr      : <number> | '(' <operator> <expr>+ ')' ;  \
             lip       : /^/ <operator> <expr>+ /$/ ;             \
         ",
