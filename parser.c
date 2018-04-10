@@ -3,30 +3,55 @@
 #include <editline/readline.h>
 #include "mpc.h"
 
-typedef struct {
+typedef struct lval {
   int type;
   long num;
-  int err;
+  char* err;
+  char* sym;
+  int count; 
+  struct lval** cell; //cell points to a location where we store a list of lval* 
 } lval;
 
-enum { LVAL_NUM, LVAL_ERR };
+enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_SEXPR };
 enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM };
 
 static char pct = '%'; 
 
-lval lval_num (long x) 
+// construct a pointer to a new lval number
+lval* lval_num (long x) 
 {
-  lval v;
-  v.type = LVAL_NUM;
-  v.num = x;
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_NUM;
+  v->num = x;
   return v;
 }
 
-lval lval_err (int x) 
+// construct a pointer to a new lval error
+lval* lval_err (char* m) 
 {
-  lval v;
-  v.type = LVAL_ERR;
-  v.err = x;
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_ERR;
+  v->err = malloc(strlen(m) + 1);
+  strcpy(v->err, m);
+  return v;
+}
+
+// construct a pointer to a new lval symbol
+lval* lval_sym (char* s) 
+{
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_SYM;
+  v->sym = malloc(strlen(s) + 1);
+  strcpy(v->sym, s);
+  return v;
+}
+
+// construct a pointer to a new empty lval s-expression
+lval* lval_sexpr(void) {
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_SEXPR;
+  v->count = 0;
+  v->cell = NULL;
   return v;
 }
 
@@ -130,4 +155,4 @@ int main(int argc, char** argv)
     return 0; 
 }
 
-// TODO(shaw): We need a way to store S-Expressions as lval. This means we'll also need to store Symbols and Numbers. 
+// TODO(shaw): need  destructors to match the constructors of lval pointers to free memory claimed by malloc
