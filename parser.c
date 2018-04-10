@@ -80,18 +80,20 @@ int main(int argc, char** argv)
 {   
     // Polish Notation
     mpc_parser_t* Number   = mpc_new("number");
-    mpc_parser_t* Operator = mpc_new("operator");
+    mpc_parser_t* Symbol   = mpc_new("symbol");
+    mpc_parser_t* Sexpr    = mpc_new("sexpr");
     mpc_parser_t* Expr     = mpc_new("expr");
     mpc_parser_t* Lip      = mpc_new("lip");
 
     mpca_lang(MPCA_LANG_DEFAULT,
         "                                                        \
             number    : /-?[0-9]+/ ;                             \
-            operator  : '+' | '-' | '*' | '/' | '%' | '^';       \
+            symbol    : '+' | '-' | '*' | '/' | '%' | '^';       \
+            sexpr     : '(' <expr>* ')' ;                        \
             expr      : <number> | '(' <operator> <expr>+ ')' ;  \
             lip       : /^/ <operator> <expr>+ /$/ ;             \
         ",
-        Number, Operator, Expr, Lip);
+        Number, Symbol, Sexpr, Expr, Lip);
     
     puts("Lips - Version 0.0.0.0.1"); 
     puts("Press ctrl+c to exit\n"); 
@@ -124,7 +126,8 @@ int main(int argc, char** argv)
         free(input); 
     }   
 
-    mpc_cleanup(4, Number, Operator, Expr, Lip);
+    mpc_cleanup(4, Number, Symbol, Sexpr, Expr, Lip);
     return 0; 
 }
 
+// TODO(shaw): We need a way to store S-Expressions as lval. This means we'll also need to store Symbols and Numbers. 
